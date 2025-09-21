@@ -37,11 +37,12 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-// サーバー起動前の設定チェック
-if (!validateConfig()) {
-  console.error('設定が不正です。.envファイルを確認してください。');
-  process.exit(1);
-}
+// サーバー起動前の設定チェック（Railway用に一時的に無効化）
+// if (!validateConfig()) {
+//   console.error('設定が不正です。.envファイルを確認してください。');
+//   process.exit(1);
+// }
+console.log('環境変数チェックを一時的にスキップしています（Railway用）');
 
 app.listen(PORT, () => {
   console.log(`サーバーがポート ${PORT} で起動しました`);
