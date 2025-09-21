@@ -6,7 +6,17 @@ const { postToChatwork } = require('../services/chatworkService');
  */
 async function webhookHandler(req, res) {
   try {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     console.log('Webhook受信:', JSON.stringify(req.body, null, 2));
+
+    // デバッグ: 利用可能なフィールド一覧を出力
+    console.log('=== 利用可能なフィールド一覧 ===');
+    Object.keys(req.body.record).forEach(fieldCode => {
+      const field = req.body.record[fieldCode];
+      if (!fieldCode.startsWith('$') && field.value !== undefined && field.value !== null && field.value !== '') {
+        console.log(`${fieldCode}: ${JSON.stringify(field.value)}`);
+      }
+    });
 
     // リクエストボディの基本チェック
     if (!req.body || !req.body.record) {
@@ -14,7 +24,8 @@ async function webhookHandler(req, res) {
       return res.status(400).json({ error: 'Invalid webhook data' });
     }
 
-    const { type, record, appId } = req.body;
+    const { type, record, app } = req.body;
+    const appId = app ? app.id : null;
 
     // イベントタイプの確認
     if (!['ADD_RECORD', 'UPDATE_RECORD'].includes(type)) {
@@ -24,6 +35,11 @@ async function webhookHandler(req, res) {
 
     // データのフォーマット（AI整理を含む）
     const formattedMessage = await formatKintoneData(record, type, appId);
+
+    // デバッグ: 送信するメッセージ内容を出力
+    console.log('=== Chatworkに送信するメッセージ ===');
+    console.log(formattedMessage);
+    console.log('==============================');
 
     // Chatworkに投稿
     await postToChatwork(formattedMessage);
