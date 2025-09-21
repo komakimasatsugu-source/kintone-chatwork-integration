@@ -50,6 +50,85 @@ const sendToChatwork = async (message) => {
   });
 };
 
+// Format kintone data for Chatwork
+const formatKintoneMessage = (kintoneData) => {
+  let message = "📋 **新しお問い合わせが届きました**\n";
+  message += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+
+  if (kintoneData.record) {
+    const record = kintoneData.record;
+
+    // Extract specific fields with Japanese labels
+    const fieldMapping = {
+      '会社名': record['会社名'] || record.company || record.companyName,
+      '氏名': record['氏名'] || record.name || record.fullName,
+      '携帯電話': record['携帯電話'] || record.phone || record.mobile,
+      'メールアドレス': record['メールアドレス'] || record.email || record.mailAddress,
+      'ドロップダウン': record['ドロップダウン'] || record.dropdown || record.position,
+      'code1': record['code1'] || record.code,
+      'お問い合わせ内容': record['お問い合わせ内容'] || record.inquiry || record.content
+    };
+
+    // Company and Contact Info
+    message += "👤 **お客様情報**\n";
+    if (fieldMapping['会社名'] && fieldMapping['会社名'].value) {
+      message += `🏢 会社名: ${fieldMapping['会社名'].value}\n`;
+    }
+    if (fieldMapping['氏名'] && fieldMapping['氏名'].value) {
+      message += `👨‍💼 氏名: ${fieldMapping['氏名'].value}\n`;
+    }
+    if (fieldMapping['ドロップダウン'] && fieldMapping['ドロップダウン'].value) {
+      message += `💼 役肷: ${fieldMapping['ドロップダウン'].value}\n`;
+    }
+    message += "\n";
+
+    // Contact Details
+    message += "📞 **連絡先**\n";
+    if (fieldMapping['携帯電話'] && fieldMapping['携帯電話'].value) {
+      message += `📱 携帯電話: ${fieldMapping['携帯電話'].value}\n`;
+    }
+    if (fieldMapping['メールアドレス'] && fieldMapping['メールアドレス'].value) {
+      message += `📧 メール: ${fieldMapping['メールアドレス'].value}\n`;
+    }
+    message += "\n";
+
+    // Code/Source
+    if (fieldMapping['code1'] && fieldMapping['code1'].value) {
+      message += "📊 **参照コード**\n";
+      message += `🔖 Code: ${fieldMapping['code1'].value}\n\n`;
+    }
+
+    // Inquiry Content
+    if (fieldMapping['お問い合わせ内容'] && fieldMapping['お問い合わせ内容'].value) {
+      message += "💬 **お問い合わせ内容**\n";
+      message += `${fieldMapping['お問い合わせ内容'].value}\n\n`;
+    } else {
+      message += "💬 **お問い合わせ内容**: 未記入\n\n";
+    }
+
+    // Record Info
+    const recordId = record.レコード番号 ? record.レコード番号.value :
+                    record.$id ? record.$id.value : "不明";
+
+    message += "ℹ️ **システム情報**\n";
+    message += `📝 レコードID: ${recordId}\n`;
+    message += `⏰ 受信日時: ${new Date().toLocaleString('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}\n`;
+
+  } else {
+    message += `📄 データ: ${JSON.stringify(kintoneData, null, 2)}`;
+  }
+
+  message += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+  return message;
+};
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   console.log("Health check requested");
@@ -66,25 +145,8 @@ app.post("/webhook/kintone", async (req, res) => {
   try {
     console.log("Webhook received:", JSON.stringify(req.body, null, 2));
 
-    // Create message for Chatwork
-    const kintoneData = req.body;
-    let message = "📋 Kintone更新通知\n\n";
-
-    if (kintoneData.record) {
-      const record = kintoneData.record;
-      const recordId = record.レコード番号 ? record.レコード番号.value : "不明";
-      message += `レコードID: ${recordId}\n`;
-      message += `更新日時: ${new Date().toLocaleString('ja-JP')}\n\n`;
-
-      // Add other fields
-      Object.keys(record).forEach(key => {
-        if (!key.startsWith('$') && record[key] && record[key].value) {
-          message += `${key}: ${record[key].value}\n`;
-        }
-      });
-    } else {
-      message += `データ: ${JSON.stringify(kintoneData, null, 2)}`;
-    }
+    // Create formatted message for Chatwork
+    const message = formatKintoneMessage(req.body);
 
     // Send to Chatwork
     if (process.env.CHATWORK_API_TOKEN && process.env.CHATWORK_ROOM_ID) {
@@ -129,7 +191,7 @@ app.post("/webhook/kintone", async (req, res) => {
 // Test Chatwork endpoint
 app.post("/test/chatwork", async (req, res) => {
   try {
-    const testMessage = "🧪 テストメッセージ\n\nkintone-Chatwork連携が正常に動作しています！";
+    const testMessage = "🧪 **テストメッセージ**\n\nkintone-Chatwork連携が正常に動作しています！";
     const result = await sendToChatwork(testMessage);
     res.json({
       status: "success",
@@ -140,6 +202,41 @@ app.post("/test/chatwork", async (req, res) => {
     res.status(500).json({
       status: "error",
       message: "Failed to send test message",
+      error: error.message
+    });
+  }
+});
+
+// Test formatted message endpoint
+app.post("/test/format", async (req, res) => {
+  try {
+    // Sample data based on your example
+    const sampleData = {
+      record: {
+        "会社名": { value: "株式会社グッドラフ" },
+        "氏名": { value: "小巻正継" },
+        "携帯電話": { value: "08044234983" },
+        "メールアドレス": { value: "mkomaki@goodlaugh.co.jp" },
+        "ドロップダウン": { value: "代表者" },
+        "code1": { value: "冷凍技術成功事例ハンドブックLP" },
+        "お問い合わせ内容": { value: "" },
+        "レコード番号": { value: "1" }
+      }
+    };
+
+    const message = formatKintoneMessage(sampleData);
+    const result = await sendToChatwork(message);
+
+    res.json({
+      status: "success",
+      message: "Formatted test message sent to Chatwork",
+      chatworkResponse: result,
+      formattedMessage: message
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Failed to send formatted test message",
       error: error.message
     });
   }
@@ -161,5 +258,6 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Webhook URL: http://localhost:${PORT}/webhook/kintone`);
   console.log(`Test Chatwork: http://localhost:${PORT}/test/chatwork`);
+  console.log(`Test Format: http://localhost:${PORT}/test/format`);
   console.log(`Chatwork configured: ${!!(process.env.CHATWORK_API_TOKEN && process.env.CHATWORK_ROOM_ID)}`);
 });
