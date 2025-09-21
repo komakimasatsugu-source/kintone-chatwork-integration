@@ -52,7 +52,7 @@ const sendToChatwork = async (message) => {
 
 // Format kintone data for Chatwork
 const formatKintoneMessage = (kintoneData) => {
-  let message = "**新しいお問い合わせが届きました**\n";
+  let message = "【新しいお問い合わせが届きました】\n";
   message += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
 
   if (kintoneData.record) {
@@ -70,7 +70,7 @@ const formatKintoneMessage = (kintoneData) => {
     };
 
     // Company and Contact Info
-    message += "**お客様情報**\n";
+    message += "【お客様情報】\n";
     if (fieldMapping['会社名'] && fieldMapping['会社名'].value) {
       message += `会社名: ${fieldMapping['会社名'].value}\n`;
     }
@@ -83,7 +83,7 @@ const formatKintoneMessage = (kintoneData) => {
     message += "\n";
 
     // Contact Details
-    message += "**連絡先**\n";
+    message += "【連絡先】\n";
     if (fieldMapping['携帯電話'] && fieldMapping['携帯電話'].value) {
       message += `携帯電話: ${fieldMapping['携帯電話'].value}\n`;
     }
@@ -94,23 +94,23 @@ const formatKintoneMessage = (kintoneData) => {
 
     // Code/Source
     if (fieldMapping['code1'] && fieldMapping['code1'].value) {
-      message += "**参照コード**\n";
+      message += "【参照コード】\n";
       message += `Code: ${fieldMapping['code1'].value}\n\n`;
     }
 
     // Inquiry Content
     if (fieldMapping['お問い合わせ内容'] && fieldMapping['お問い合わせ内容'].value) {
-      message += "**お問い合わせ内容**\n";
+      message += "【お問い合わせ内容】\n";
       message += `${fieldMapping['お問い合わせ内容'].value}\n\n`;
     } else {
-      message += "**お問い合わせ内容**: 未記入\n\n";
+      message += "【お問い合わせ内容】: 未記入\n\n";
     }
 
     // Record Info
     const recordId = record.レコード番号 ? record.レコード番号.value :
                     record.$id ? record.$id.value : "不明";
 
-    message += "**システム情報**\n";
+    message += "【システム情報】\n";
     message += `レコードID: ${recordId}\n`;
     message += `受信日時: ${new Date().toLocaleString('ja-JP', {
       timeZone: 'Asia/Tokyo',
@@ -191,7 +191,7 @@ app.post("/webhook/kintone", async (req, res) => {
 // Test Chatwork endpoint
 app.post("/test/chatwork", async (req, res) => {
   try {
-    const testMessage = "**テストモッセージ**\n\nkintone-Chatwork連携が正常に動作しています！";
+    const testMessage = "【テストモッセージ】\n\nkintone-Chatwork連携が正常に動作しています！";
     const result = await sendToChatwork(testMessage);
     res.json({
       status: "success",
