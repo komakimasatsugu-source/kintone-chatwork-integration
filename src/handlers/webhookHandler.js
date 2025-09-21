@@ -36,11 +36,6 @@ async function webhookHandler(req, res) {
     // データのフォーマット（AI整理を含む）
     const formattedMessage = await formatKintoneData(record, type, appId);
 
-    // デバッグ: 送信するメッセージ内容を出力
-    console.log('=== Chatworkに送信するメッセージ ===');
-    console.log(formattedMessage);
-    console.log('==============================');
-
     // Chatworkに投稿
     await postToChatwork(formattedMessage);
 

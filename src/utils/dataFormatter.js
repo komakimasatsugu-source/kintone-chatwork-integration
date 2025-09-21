@@ -62,23 +62,16 @@ function organizeFieldsDirectly(record) {
   const processedFields = new Set();
 
   // 流入媒体（code1）を最初に処理
-  console.log('=== デバッグ: code1フィールド ===');
-  console.log('record["code1"]:', record['code1']);
-
   if (record['code1']) {
     const value = formatFieldValue(record['code1']);
-    console.log('formatFieldValue結果:', value);
     if (value) {
       output.push(`■ 流入媒体: ${value}`);
-      console.log('流入媒体追加:', `■ 流入媒体: ${value}`);
     } else {
       output.push(`■ 流入媒体:`);
-      console.log('流入媒体空で追加');
     }
     processedFields.add('code1');
   } else {
     output.push(`■ 流入媒体:`);
-    console.log('code1フィールドが存在しない');
     processedFields.add('code1');
   }
 
