@@ -58,7 +58,7 @@
 
     const output = [];
     const mandatoryFields = ['code1', 'イベント', 'code', '文字列__お問い合わせ']; // 必須表示フィールド
-
+    
     // 必須フィールドを最初に処理（順序を保証）
     const processedFields = new Set();
 
@@ -104,13 +104,11 @@
       processedFields.add('code');
     }
 
-    // お問い合わせ内容を処理（原文のまま全文表示、1文字も編集しない）
+    // お問い合わせ内容を処理（必須表示）
     if (record['文字列__お問い合わせ']) {
-      const field = record['文字列__お問い合わせ'];
-      // field.valueを直接使用して、省略や加工を一切行わない
-      const value = field.value;
-      if (value !== undefined && value !== null && value !== '') {
-        output.push(`■ お問い合わせ内容: ${String(value)}`);
+      const value = formatFieldValue(record['文字列__お問い合わせ']);
+      if (value) {
+        output.push(`■ お問い合わせ内容: ${value}`);
       } else {
         output.push(`■ お問い合わせ内容:`);
       }
