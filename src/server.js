@@ -109,12 +109,22 @@ const formatKintoneMessage = (kintoneData) => {
 
     // 日程希望（必ず表示）
     message += "【日程希望】\n";
+    const formatDateTime = (isoString) => {
+      if (!isoString) return '未入力';
+      const date = new Date(isoString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}  ${hours}:${minutes}`;
+    };
     const datetime1 = record['日程希望1'] ? record['日程希望1'].value : '';
     const datetime2 = record['日程希望2'] ? record['日程希望2'].value : '';
     const datetime3 = record['日程希望3'] ? record['日程希望3'].value : '';
-    message += `第1希望: ${datetime1 || '未入力'}\n`;
-    message += `第2希望: ${datetime2 || '未入力'}\n`;
-    message += `第3希望: ${datetime3 || '未入力'}\n\n`;
+    message += `第1希望: ${formatDateTime(datetime1)}\n`;
+    message += `第2希望: ${formatDateTime(datetime2)}\n`;
+    message += `第3希望: ${formatDateTime(datetime3)}\n\n`;
 
     // Record Info
     const recordId = record.レコード番号 ? record.レコード番号.value :
