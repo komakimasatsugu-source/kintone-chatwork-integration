@@ -107,6 +107,15 @@ const formatKintoneMessage = (kintoneData) => {
         message += "未記入\n\n";
       }
 
+    // 日程希望（必ず表示）
+    message += "【日程希望】\n";
+    const datetime1 = record['datetime'] ? record['datetime'].value : '';
+    const datetime2 = record['datetime_1'] ? record['datetime_1'].value : '';
+    const datetime3 = record['datetime_1_1'] ? record['datetime_1_1'].value : '';
+    message += `第1希望: ${datetime1 || '未入力'}\n`;
+    message += `第2希望: ${datetime2 || '未入力'}\n`;
+    message += `第3希望: ${datetime3 || '未入力'}\n\n`;
+
     // Record Info
     const recordId = record.レコード番号 ? record.レコード番号.value :
                     record.$id ? record.$id.value : "不明";
