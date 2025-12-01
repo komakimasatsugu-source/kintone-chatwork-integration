@@ -43,9 +43,9 @@
       '住所': '■ 住所',
       'イベント': '■ 申込みイベント',
       'code1': '■ 流入媒体',
-      '日程希望1': '■ 日程【第1希望】',
-      '日程希望2': '■ 日程【第2希望】',
-      '日程希望3': '■ 日程【第3希望】',
+      'datetime': '■ 日程【第1希望】',
+      'datetime_1': '■ 日程【第2希望】',
+      'datetime_1_1': '■ 日程【第3希望】',
       '課題感_0': '■ 課題感',
       '備考': '■ 備考',
       '業種': '■ 業種',
@@ -120,19 +120,15 @@
 
     // 日程希望1、2、3を必須表示
     const dateFields = [
-      { code: '日程希望1', label: '■ 日程【第1希望】' },
-      { code: '日程希望2', label: '■ 日程【第2希望】' },
-      { code: '日程希望3', label: '■ 日程【第3希望】' }
+      { code: 'datetime', label: '■ 日程【第1希望】' },
+      { code: 'datetime_1', label: '■ 日程【第2希望】' },
+      { code: 'datetime_1_1', label: '■ 日程【第3希望】' }
     ];
-    console.log('=== 日程希望フィールド処理開始 ===');
-    console.log('レコードキー:', Object.keys(record).filter(k => k.includes('日程')));
     dateFields.forEach(({ code, label }) => {
-      console.log(`${code}: ${JSON.stringify(record[code])}`);
       const value = record[code] ? formatFieldValue(record[code]) : '';
       output.push(`${label}: ${value}`);
       processedFields.add(code);
     });
-    console.log('=== 日程希望フィールド処理完了 ===');
 
     // 残りのフィールドを処理
     for (const [fieldCode, label] of Object.entries(fieldMapping)) {
