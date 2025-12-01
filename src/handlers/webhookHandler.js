@@ -9,6 +9,12 @@ async function webhookHandler(req, res) {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     console.log('Webhook受信:', JSON.stringify(req.body, null, 2));
 
+    // リクエストボディの基本チェック
+    if (!req.body || !req.body.record) {
+      console.error('無効なWebhookデータ: recordが見つかりません');
+      return res.status(400).json({ error: 'Invalid webhook data' });
+    }
+
     // デバッグ: 利用可能なフィールド一覧を出力
     console.log('=== 利用可能なフィールド一覧 ===');
     Object.keys(req.body.record).forEach(fieldCode => {
@@ -17,12 +23,6 @@ async function webhookHandler(req, res) {
         console.log(`${fieldCode}: ${JSON.stringify(field.value)}`);
       }
     });
-
-    // リクエストボディの基本チェック
-    if (!req.body || !req.body.record) {
-      console.error('無効なWebhookデータ: recordが見つかりません');
-      return res.status(400).json({ error: 'Invalid webhook data' });
-    }
 
     const { type, record, app } = req.body;
     const appId = app ? app.id : null;
