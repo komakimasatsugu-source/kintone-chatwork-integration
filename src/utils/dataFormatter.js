@@ -124,11 +124,15 @@
       { code: '日程希望2', label: '■ 日程【第2希望】' },
       { code: '日程希望3', label: '■ 日程【第3希望】' }
     ];
+    console.log('=== 日程希望フィールド処理開始 ===');
+    console.log('レコードキー:', Object.keys(record).filter(k => k.includes('日程')));
     dateFields.forEach(({ code, label }) => {
+      console.log(`${code}: ${JSON.stringify(record[code])}`);
       const value = record[code] ? formatFieldValue(record[code]) : '';
       output.push(`${label}: ${value}`);
       processedFields.add(code);
     });
+    console.log('=== 日程希望フィールド処理完了 ===');
 
     // 残りのフィールドを処理
     for (const [fieldCode, label] of Object.entries(fieldMapping)) {
