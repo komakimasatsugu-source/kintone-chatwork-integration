@@ -155,6 +155,22 @@ app.post("/webhook/kintone", async (req, res) => {
   try {
     console.log("Webhook received:", JSON.stringify(req.body, null, 2));
 
+    // デバッグ: 日程関連フィールドを確認
+    if (req.body.record) {
+      const record = req.body.record;
+      console.log("=== 日程フィールドデバッグ ===");
+      console.log("全フィールドコード:", Object.keys(record));
+      console.log("datetime:", JSON.stringify(record['datetime']));
+      console.log("datetime_1:", JSON.stringify(record['datetime_1']));
+      console.log("datetime_1_1:", JSON.stringify(record['datetime_1_1']));
+      // 日程を含むフィールドを検索
+      Object.keys(record).forEach(key => {
+        if (key.toLowerCase().includes('date') || key.includes('日程')) {
+          console.log(`${key}:`, JSON.stringify(record[key]));
+        }
+      });
+    }
+
     // Create formatted message for Chatwork
     const message = formatKintoneMessage(req.body);
 
