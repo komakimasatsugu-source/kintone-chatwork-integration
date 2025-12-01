@@ -103,6 +103,15 @@ function organizeFieldsDirectly(record) {
     processedFields.add('code');
   }
 
+  // 日程希望1、日程希望2、日程希望3を必ず表示
+  const dateFields = ['日程希望1', '日程希望2', '日程希望3'];
+  const dateLabels = ['■ 日程【第1希望】', '■ 日程【第2希望】', '■ 日程【第3希望】'];
+  dateFields.forEach((fieldCode, index) => {
+    const value = record[fieldCode] ? formatFieldValue(record[fieldCode]) : '';
+    output.push(`${dateLabels[index]}: ${value}`);
+    processedFields.add(fieldCode);
+  });
+
   // 残りのフィールドを処理
   for (const [fieldCode, label] of Object.entries(fieldMapping)) {
     if (processedFields.has(fieldCode)) {
@@ -117,17 +126,6 @@ function organizeFieldsDirectly(record) {
       // 携帯電話と郵便番号は数字のみ
       if ((fieldCode === '携帯電話' || fieldCode === '郵便番号') && value) {
         value = value.replace(/[^0-9]/g, '');
-      }
-
-      // 日程の重複チェック
-      if (fieldCode.startsWith('日程希望')) {
-        const date1 = record['日程希望1']?.value;
-        const date2 = record['日程希望2']?.value;
-        const date3 = record['日程希望3']?.value;
-
-        if (date1 === date2 && date2 === date3 && fieldCode !== '日程希望1') {
-          continue; // 第1希望以外は表示しない
-        }
       }
 
       // 携帯電話と電話番号の重複チェック
