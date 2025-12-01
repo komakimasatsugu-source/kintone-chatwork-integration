@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const https = require("https");
 const querystring = require("querystring");
@@ -66,7 +67,7 @@ const formatKintoneMessage = (kintoneData) => {
       'メールアドレス': record['メールアドレス'] || record.email || record.mailAddress,
       'ドロップダウン': record['ドロップダウン'] || record.dropdown || record.position,
       'code1': record['code1'] || record.code,
-      'お問い合わせ内容': record['お問い合わせ内容'] || record.inquiry || record.content
+  'お問い合わせ内容': record['文字列__お問い合わせ'] || record['お問い合わせ内容'] || record.inquiry || record.content
     };
 
     // Company and Contact Info
@@ -98,13 +99,13 @@ const formatKintoneMessage = (kintoneData) => {
       message += `Code: ${fieldMapping['code1'].value}\n\n`;
     }
 
-    // Inquiry Content
-    if (fieldMapping['お問い合わせ内容'] && fieldMapping['お問い合わせ内容'].value) {
+      // Inquiry Content (always display)
       message += "【お問い合わせ内容】\n";
-      message += `${fieldMapping['お問い合わせ内容'].value}\n\n`;
-    } else {
-      message += "【お問い合わせ内容】: 未記入\n\n";
-    }
+      if (fieldMapping['お問い合わせ内容'] && fieldMapping['お問い合わせ内容'].value) {
+        message += `${fieldMapping['お問い合わせ内容'].value}\n\n`;
+      } else {
+        message += "未記入\n\n";
+      }
 
     // Record Info
     const recordId = record.レコード番号 ? record.レコード番号.value :
@@ -191,7 +192,7 @@ app.post("/webhook/kintone", async (req, res) => {
 // Test Chatwork endpoint
 app.post("/test/chatwork", async (req, res) => {
   try {
-    const testMessage = "【テストメッセージ】\n\nkintone-Chatwork連携が正常に動作しています！";
+    const testMessage = "【テストモッセージ】\n\nkintone-Chatwork連携が正常に動作しています！";
     const result = await sendToChatwork(testMessage);
     res.json({
       status: "success",
