@@ -122,10 +122,10 @@ const formatKintoneMessage = (kintoneData) => {
         minute: '2-digit'
       });
     };
-    // kintoneのフィールドコード: datetime, datetime_1, datetime_1_1
-    const datetime1 = record['datetime'] ? record['datetime'].value : '';
-    const datetime2 = record['datetime_1'] ? record['datetime_1'].value : '';
-    const datetime3 = record['datetime_1_1'] ? record['datetime_1_1'].value : '';
+    // kintoneのフィールドコード（両方の命名規則に対応）
+    const datetime1 = (record['datetime'] || record['日程希望1'] || {}).value || '';
+    const datetime2 = (record['datetime_1'] || record['日程希望2'] || {}).value || '';
+    const datetime3 = (record['datetime_1_1'] || record['日程希望3'] || {}).value || '';
     message += `第1希望: ${formatDateTime(datetime1)}\n`;
     message += `第2希望: ${formatDateTime(datetime2)}\n`;
     message += `第3希望: ${formatDateTime(datetime3)}\n\n`;
