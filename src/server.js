@@ -130,6 +130,13 @@ const formatKintoneMessage = (kintoneData) => {
     message += `第2希望: ${formatDateTime(datetime2)}\n`;
     message += `第3希望: ${formatDateTime(datetime3)}\n\n`;
 
+    // 検討中の冷凍機械
+    const refrigerationMachine = (record['refrigeration_machine'] || record['検討中の冷凍機械'] || {}).value || '';
+    if (refrigerationMachine) {
+      message += "【検討中の冷凍機械】\n";
+      message += `${refrigerationMachine}\n\n`;
+    }
+
     // Record Info
     const recordId = record.レコード番号 ? record.レコード番号.value :
                     record.$id ? record.$id.value : "不明";
